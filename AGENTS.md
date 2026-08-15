@@ -13,6 +13,7 @@ Always read the `AGENTS.md` of the module you are working in before making chang
 ## General conventions
 
 - Write all code comments, commit messages, README files, ADRs and other documentation in English, regardless of the language used in the conversation with the user.
+- Commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) format: `<type>[optional scope]: <description>` (e.g. `feat(task-manager): add delete task endpoint`, `fix(shell): correct sidebar active link`). Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`.
 - Every deployable module (a web app, a backend service) must have: a `README.md` explaining why it exists, an `ADR/` directory recording its architectural decisions (Michael Nygard format: Title, Status, Context, Decision, Consequences), an `AGENTS.md`, and a `Dockerfile`.
 - Follow hexagonal architecture in both the frontend and the backend: keep domain and application logic free of framework and I/O concerns; put those in adapters.
 - When adding a new module (a new backend service under `apps/`, or a new feature package under `web/features/`), scaffold it with the same README/ADR/AGENTS.md/Dockerfile conventions as the existing `task-manager` module, which serves as the reference implementation.
