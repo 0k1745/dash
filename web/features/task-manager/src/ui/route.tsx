@@ -11,5 +11,5 @@ export function createTaskManagerElement(repository: TaskRepository) {
 }
 
 export { HttpTaskRepository } from "../infrastructure/http-task-repository";
-export type { Task } from "../domain/task";
-export type { TaskRepository } from "../domain/task-repository";
+export type { Task, TaskStatus } from "../domain/task";
+export type { NewTask, TaskRepository } from "../domain/task-repository";
