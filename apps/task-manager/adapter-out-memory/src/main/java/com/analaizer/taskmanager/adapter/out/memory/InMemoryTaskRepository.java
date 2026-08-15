@@ -5,6 +5,7 @@ import com.analaizer.taskmanager.domain.TaskRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class InMemoryTaskRepository implements TaskRepository {
@@ -19,6 +20,13 @@ public final class InMemoryTaskRepository implements TaskRepository {
     @Override
     public Optional<Task> findById(String id) {
         return Optional.ofNullable(tasks.get(id));
+    }
+
+    @Override
+    public List<Task> searchByLabels(Set<String> labels) {
+        return tasks.values().stream()
+                .filter(task -> task.hasAllLabels(labels))
+                .toList();
     }
 
     @Override

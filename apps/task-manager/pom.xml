@@ -21,6 +21,7 @@
     <module>application</module>
     <module>adapter-in-rest</module>
     <module>adapter-out-memory</module>
+    <module>adapter-out-github</module>
     <module>bootstrap</module>
   </modules>
 
