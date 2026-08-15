@@ -8,6 +8,7 @@ Documentation that only concerns a single module belongs in that module's own `R
 
 Create one Markdown file per feature (e.g. `docs/task-manager.md`), written in English, covering:
 
+- a `Status:` line (`Draft` → `Doc approved` → `Backend in progress` → `Backend done` → `Frontend in progress` → `Done`), kept up to date as the feature progresses — see the "Contribution workflow" section of the root [AGENTS.md](../AGENTS.md),
 - the purpose of the feature and the problem it solves,
 - which modules implement it (`apps/...`, `web/features/...`),
 - the main flows/use cases,
