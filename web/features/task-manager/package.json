@@ -1,0 +1,19 @@
+{
+  "name": "task-manager",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/ui/route.tsx",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "~6.0.2"
+  }
+}

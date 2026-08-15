@@ -1,0 +1,30 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.shell nav {
+  width: 220px;
+  border-right: 1px solid #ccc;
+  padding: 1rem;
+}
+
+.shell nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.shell-content {
+  flex: 1;
+  padding: 1.5rem;
+}

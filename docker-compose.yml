@@ -1,0 +1,30 @@
+services:
+  task-manager:
+    build:
+      context: ./apps
+      dockerfile: task-manager/bootstrap/Dockerfile
+    image: analaizer/task-manager:local
+    container_name: task-manager
+    ports:
+      - "8080:8080"
+    networks:
+      - analaizer
+
+  web-shell:
+    build:
+      context: ./web
+      dockerfile: shell/Dockerfile
+      args:
+        VITE_TASK_MANAGER_API_URL: http://localhost:8080
+    image: analaizer/web-shell:local
+    container_name: web-shell
+    ports:
+      - "5173:80"
+    depends_on:
+      - task-manager
+    networks:
+      - analaizer
+
+networks:
+  analaizer:
+    driver: bridge
