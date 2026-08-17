@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { completeTask } from "../application/complete-task";
+import { addLabel } from "../application/add-label";
+import { changeTaskStatus } from "../application/change-task-status";
 import { createTask } from "../application/create-task";
 import { listTasks } from "../application/list-tasks";
-import type { Task } from "../domain/task";
-import type { TaskRepository } from "../domain/task-repository";
+import { removeLabel } from "../application/remove-label";
+import { searchTasksByLabels } from "../application/search-tasks-by-labels";
+import type { Task, TaskStatus } from "../domain/task";
+import type { NewTask, TaskRepository } from "../domain/task-repository";
 import { TaskForm } from "./TaskForm";
 import { TaskItem } from "./TaskItem";
 
@@ -16,29 +19,51 @@ interface TaskListPageProps {
 export function TaskListPage({ repository }: TaskListPageProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [labelFilter, setLabelFilter] = useState("");
 
   const refresh = useCallback(() => {
-    listTasks(repository)
-      .then(setTasks)
-      .catch((err: Error) => setError(err.message));
-  }, [repository]);
+    const labels = labelFilter
+      .split(",")
+      .map((label) => label.trim())
+      .filter((label) => label.length > 0);
+    const result = labels.length > 0 ? searchTasksByLabels(repository, labels) : listTasks(repository);
+    result.then(setTasks).catch((err: Error) => setError(err.message));
+  }, [repository, labelFilter]);
 
   useEffect(() => {
     refresh();
   }, [refresh]);
 
   const handleCreate = useMemo(
-    () => (title: string) => {
-      createTask(repository, title)
+    () => (task: NewTask) => {
+      createTask(repository, task)
         .then(() => refresh())
         .catch((err: Error) => setError(err.message));
     },
     [repository, refresh],
   );
 
-  const handleComplete = useMemo(
-    () => (id: string) => {
-      completeTask(repository, id)
+  const handleChangeStatus = useMemo(
+    () => (id: string, status: TaskStatus) => {
+      changeTaskStatus(repository, id, status)
+        .then(() => refresh())
+        .catch((err: Error) => setError(err.message));
+    },
+    [repository, refresh],
+  );
+
+  const handleAddLabel = useMemo(
+    () => (id: string, label: string) => {
+      addLabel(repository, id, label)
+        .then(() => refresh())
+        .catch((err: Error) => setError(err.message));
+    },
+    [repository, refresh],
+  );
+
+  const handleRemoveLabel = useMemo(
+    () => (id: string, label: string) => {
+      removeLabel(repository, id, label)
         .then(() => refresh())
         .catch((err: Error) => setError(err.message));
     },
@@ -49,10 +74,25 @@ export function TaskListPage({ repository }: TaskListPageProps) {
     <section>
       <h1>Task Manager</h1>
       <TaskForm onSubmit={handleCreate} />
+      <label>
+        Filter by labels (comma-separated)
+        <input
+          type="text"
+          value={labelFilter}
+          onChange={(event) => setLabelFilter(event.target.value)}
+          aria-label="Filter by labels"
+        />
+      </label>
       {error && <p role="alert">{error}</p>}
       <ul>
         {tasks.map((task) => (
-          <TaskItem key={task.id} task={task} onComplete={handleComplete} />
+          <TaskItem
+            key={task.id}
+            task={task}
+            onChangeStatus={handleChangeStatus}
+            onAddLabel={handleAddLabel}
+            onRemoveLabel={handleRemoveLabel}
+          />
         ))}
       </ul>
     </section>
