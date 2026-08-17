@@ -1,0 +1,48 @@
+name: web frontend CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/web-frontend-ci.yml"
+  pull_request:
+    paths:
+      - "web/**"
+      - ".github/workflows/web-frontend-ci.yml"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: web
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        working-directory: web
+        run: pnpm --filter shell lint
+
+      - name: Typecheck
+        working-directory: web
+        run: pnpm -r typecheck
+
+      - name: Install Playwright browsers
+        working-directory: web
+        run: pnpm --filter shell exec playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        working-directory: web
+        run: pnpm --filter shell test:e2e
