@@ -8,7 +8,7 @@ public final class ListTasks {
 
     private final TaskRepository taskRepository;
 
-    public ListTasks(TaskRepository taskRepository) {
+    public ListTasks(final TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 

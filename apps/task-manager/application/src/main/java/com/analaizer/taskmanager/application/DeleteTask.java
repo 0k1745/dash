@@ -6,11 +6,11 @@ public final class DeleteTask {
 
     private final TaskRepository taskRepository;
 
-    public DeleteTask(TaskRepository taskRepository) {
+    public DeleteTask(final TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    public void execute(String id) {
+    public void execute(final String id) {
         taskRepository.deleteById(id);
     }
 }

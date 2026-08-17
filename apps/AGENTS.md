@@ -30,3 +30,4 @@ Only `bootstrap` depends on Spring Boot starters and produces the runnable jar /
 
 - Comments and documentation in English.
 - `mvn -pl apps/<service>/bootstrap -am verify` must pass before considering a change done.
+- Declare local variables and method/constructor parameters as `final` whenever possible, to make immutability explicit.

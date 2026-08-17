@@ -4,3 +4,12 @@ spring:
 
 server:
   port: 8080
+
+# Only read when the "github" Spring profile is active (see
+# docs/task-manager-github-adapter.md and RepositoryConfiguration).
+github:
+  task-manager:
+    token: ${GITHUB_TASK_MANAGER_TOKEN:}
+    owner: ${GITHUB_TASK_MANAGER_OWNER:}
+    repo: ${GITHUB_TASK_MANAGER_REPO:}
+    project-number: ${GITHUB_TASK_MANAGER_PROJECT_NUMBER:0}

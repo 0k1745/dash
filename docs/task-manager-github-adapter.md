@@ -1,6 +1,6 @@
 # Task Manager: GitHub-backed storage adapter
 
-Status: Draft
+Status: Backend done
 
 ## Purpose
 
@@ -68,17 +68,17 @@ The PAT and the Projects v2 board (with its Date/Date/Number custom fields) are 
 
 ## Known risks / open questions
 
-- **Two sources of truth**: status/labels live on the Issue, dates/budget live on the Projects v2 item. The adapter must keep both in sync on every write and define what happens if one of the two calls fails partway through (documented in more detail, with the chosen ordering, in the backend PR).
-- **No delete on GitHub**: the API cannot truly delete an issue without special/enterprise permissions. `TaskRepository.deleteById` is expected to map to **closing** the issue rather than deleting it — a user-visible behavior change from today's in-memory adapter. To be confirmed before the backend PR starts.
-- **No currency for `budget`**: modeled as a plain number for now. Not a blocker for this doc, but should be revisited if multi-currency ever matters.
+- **Two sources of truth**: status/labels live on the Issue, dates/budget live on the Projects v2 item. Resolved in [ADR 2](../apps/task-manager/ADR/0002-github-issues-projects-v2-storage.md): writes are sequential (issue/labels first, then Projects v2 fields), not transactional; a partial failure can leave the two briefly inconsistent, accepted for now given every mutation is idempotent and re-running converges.
+- **No delete on GitHub**: confirmed. `TaskRepository.deleteById` maps to **closing** the issue rather than deleting it — a user-visible behavior change from the in-memory adapter, documented in ADR 2.
+- **No currency for `budget`**: modeled as a plain number for now. Not a blocker; revisit if multi-currency ever matters.
 - **Rate limits**: every list/search hits the GitHub API live; acceptable for a demo/example service, but a known limitation worth keeping in mind if this pattern is reused for a higher-traffic service.
 
 ## Planned delivery sequence
 
-1. **This PR** — this document + the contribution workflow instructions in `AGENTS.md`. No production code changes.
-2. **Backend PR(s)** — richer domain model and use cases first (with `adapter-out-memory` updated to match, existing tests staying green), then the new `adapter-out-github` module and its wiring, possibly as two separate PRs given the size.
+1. **Doc PR** (merged) — this document + the contribution workflow instructions in `AGENTS.md`.
+2. **Backend PR** (this one) — richer domain model and use cases, `adapter-out-memory` updated to match, and the new `adapter-out-github` module with its `bootstrap` wiring.
 3. **Frontend PR** — `web/features/task-manager` updated to the new fields once the backend is merged.
 
 ## Related ADRs
 
-None yet — an ADR documenting the choice of GitHub Issues + Projects v2 as the backing store (over alternatives) will be added alongside the backend PR that implements it, in `apps/task-manager/ADR/`.
+[ADR 2 — Store tasks as GitHub Issues + Projects v2 items](../apps/task-manager/ADR/0002-github-issues-projects-v2-storage.md).

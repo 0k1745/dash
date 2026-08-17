@@ -1,5 +1,8 @@
 package com.analaizer.taskmanager.domain;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,34 +12,65 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskTest {
 
+    private static final LocalDate START = LocalDate.of(2026, 1, 1);
+    private static final LocalDate END = LocalDate.of(2026, 1, 31);
+
     @Test
-    void createsAnIncompleteTask() {
-        Task task = Task.create("1", "Write the ADR");
+    void createsATaskInTodoStatusWithNoLabels() {
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
 
         assertEquals("1", task.id());
         assertEquals("Write the ADR", task.title());
-        assertFalse(task.completed());
+        assertEquals(TaskStatus.TODO, task.status());
+        assertTrue(task.labels().isEmpty());
+        assertTrue(task.budget().isEmpty());
     }
 
     @Test
-    void completesATask() {
-        Task task = Task.create("1", "Write the ADR");
+    void keepsAnOptionalBudgetWhenProvided() {
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, new BigDecimal("500"));
 
-        task.complete();
-
-        assertTrue(task.completed());
+        assertEquals(new BigDecimal("500"), task.budget().orElseThrow());
     }
 
     @Test
-    void cannotCompleteATaskTwice() {
-        Task task = Task.create("1", "Write the ADR");
-        task.complete();
+    void changesStatus() {
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
 
-        assertThrows(IllegalStateException.class, task::complete);
+        task.changeStatus(TaskStatus.IN_PROGRESS);
+
+        assertEquals(TaskStatus.IN_PROGRESS, task.status());
+    }
+
+    @Test
+    void rejectsTransitioningToTheSameStatus() {
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        task.changeStatus(TaskStatus.DONE);
+
+        assertThrows(IllegalStateException.class, () -> task.changeStatus(TaskStatus.DONE));
+    }
+
+    @Test
+    void addsAndRemovesLabelsDynamically() {
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+
+        task.addLabel("docs");
+        task.addLabel("urgent");
+        assertTrue(task.hasAllLabels(Set.of("docs", "urgent")));
+
+        task.removeLabel("urgent");
+        assertFalse(task.hasAllLabels(Set.of("docs", "urgent")));
     }
 
     @Test
     void rejectsABlankTitle() {
-        assertThrows(IllegalArgumentException.class, () -> Task.create("1", "  "));
+        assertThrows(IllegalArgumentException.class,
+                () -> Task.create("1", "  ", "Describe the decision", START, END, null));
+    }
+
+    @Test
+    void rejectsAnEndDateBeforeTheStartDate() {
+        assertThrows(IllegalArgumentException.class,
+                () -> Task.create("1", "Write the ADR", "Describe the decision", END, START, null));
     }
 }
