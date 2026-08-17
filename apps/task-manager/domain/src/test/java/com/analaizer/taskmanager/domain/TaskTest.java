@@ -17,7 +17,7 @@ class TaskTest {
 
     @Test
     void createsATaskInTodoStatusWithNoLabels() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
 
         assertEquals("1", task.id());
         assertEquals("Write the ADR", task.title());
@@ -28,14 +28,14 @@ class TaskTest {
 
     @Test
     void keepsAnOptionalBudgetWhenProvided() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, new BigDecimal("500"));
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, new BigDecimal("500"));
 
         assertEquals(new BigDecimal("500"), task.budget().orElseThrow());
     }
 
     @Test
     void changesStatus() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
 
         task.changeStatus(TaskStatus.IN_PROGRESS);
 
@@ -44,7 +44,7 @@ class TaskTest {
 
     @Test
     void rejectsTransitioningToTheSameStatus() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
         task.changeStatus(TaskStatus.DONE);
 
         assertThrows(IllegalStateException.class, () -> task.changeStatus(TaskStatus.DONE));
@@ -52,7 +52,7 @@ class TaskTest {
 
     @Test
     void addsAndRemovesLabelsDynamically() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
 
         task.addLabel("docs");
         task.addLabel("urgent");

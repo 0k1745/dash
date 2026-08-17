@@ -36,13 +36,13 @@ public class TaskController {
     private final DeleteTask deleteTask;
 
     public TaskController(
-            ListTasks listTasks,
-            CreateTask createTask,
-            ChangeTaskStatus changeTaskStatus,
-            AddLabel addLabel,
-            RemoveLabel removeLabel,
-            SearchTasksByLabels searchTasksByLabels,
-            DeleteTask deleteTask
+            final ListTasks listTasks,
+            final CreateTask createTask,
+            final ChangeTaskStatus changeTaskStatus,
+            final AddLabel addLabel,
+            final RemoveLabel removeLabel,
+            final SearchTasksByLabels searchTasksByLabels,
+            final DeleteTask deleteTask
     ) {
         this.listTasks = listTasks;
         this.createTask = createTask;
@@ -54,16 +54,16 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<TaskDto> findAll(@RequestParam(name = "labels", required = false) Set<String> labels) {
-        List<Task> tasks = (labels == null || labels.isEmpty())
+    public List<TaskDto> findAll(@RequestParam(name = "labels", required = false) final Set<String> labels) {
+        final List<Task> tasks = (labels == null || labels.isEmpty())
                 ? listTasks.execute()
                 : searchTasksByLabels.execute(labels);
         return tasks.stream().map(TaskDto::from).toList();
     }
 
     @PostMapping
-    public ResponseEntity<TaskDto> create(@Valid @RequestBody CreateTaskRequest request) {
-        TaskDto created = TaskDto.from(createTask.execute(
+    public ResponseEntity<TaskDto> create(@Valid @RequestBody final CreateTaskRequest request) {
+        final TaskDto created = TaskDto.from(createTask.execute(
                 request.title(),
                 request.description(),
                 request.startDate(),
@@ -74,22 +74,22 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/status")
-    public TaskDto changeStatus(@PathVariable String id, @Valid @RequestBody ChangeStatusRequest request) {
+    public TaskDto changeStatus(@PathVariable final String id, @Valid @RequestBody final ChangeStatusRequest request) {
         return TaskDto.from(changeTaskStatus.execute(id, request.status()));
     }
 
     @PostMapping("/{id}/labels")
-    public TaskDto addLabel(@PathVariable String id, @Valid @RequestBody LabelRequest request) {
+    public TaskDto addLabel(@PathVariable final String id, @Valid @RequestBody final LabelRequest request) {
         return TaskDto.from(addLabel.execute(id, request.label()));
     }
 
     @DeleteMapping("/{id}/labels/{label}")
-    public TaskDto removeLabel(@PathVariable String id, @PathVariable String label) {
+    public TaskDto removeLabel(@PathVariable final String id, @PathVariable final String label) {
         return TaskDto.from(removeLabel.execute(id, label));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
+    public ResponseEntity<Void> delete(@PathVariable final String id) {
         deleteTask.execute(id);
         return ResponseEntity.noContent().build();
     }

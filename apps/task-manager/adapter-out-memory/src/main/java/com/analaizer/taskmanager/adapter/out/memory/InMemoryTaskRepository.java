@@ -18,25 +18,25 @@ public final class InMemoryTaskRepository implements TaskRepository {
     }
 
     @Override
-    public Optional<Task> findById(String id) {
+    public Optional<Task> findById(final String id) {
         return Optional.ofNullable(tasks.get(id));
     }
 
     @Override
-    public List<Task> searchByLabels(Set<String> labels) {
+    public List<Task> searchByLabels(final Set<String> labels) {
         return tasks.values().stream()
                 .filter(task -> task.hasAllLabels(labels))
                 .toList();
     }
 
     @Override
-    public Task save(Task task) {
+    public Task save(final Task task) {
         tasks.put(task.id(), task);
         return task;
     }
 
     @Override
-    public void deleteById(String id) {
+    public void deleteById(final String id) {
         tasks.remove(id);
     }
 }

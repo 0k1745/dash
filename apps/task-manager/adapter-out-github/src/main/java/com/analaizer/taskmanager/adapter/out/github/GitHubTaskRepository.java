@@ -57,7 +57,7 @@ public class GitHubTaskRepository implements TaskRepository {
     private final GitHubProjectContext context;
     private final GitHubTaskManagerProperties properties;
 
-    public GitHubTaskRepository(GitHubGraphQlClient client, GitHubProjectContext context, GitHubTaskManagerProperties properties) {
+    public GitHubTaskRepository(final GitHubGraphQlClient client, final GitHubProjectContext context, final GitHubTaskManagerProperties properties) {
         this.client = client;
         this.context = context;
         this.properties = properties;
@@ -69,10 +69,10 @@ public class GitHubTaskRepository implements TaskRepository {
     }
 
     @Override
-    public Optional<Task> findById(String id) {
-        String query = "query($id: ID!) { node(id: $id) { ... on Issue { " + ISSUE_FIELDS + " } } }";
-        JsonNode data = client.execute(query, Map.of("id", id));
-        JsonNode issue = data.path("node");
+    public Optional<Task> findById(final String id) {
+        final String query = "query($id: ID!) { node(id: $id) { ... on Issue { " + ISSUE_FIELDS + " } } }";
+        final JsonNode data = client.execute(query, Map.of("id", id));
+        final JsonNode issue = data.path("node");
         if (issue.isMissingNode() || issue.isNull()) {
             return Optional.empty();
         }
@@ -80,13 +80,13 @@ public class GitHubTaskRepository implements TaskRepository {
     }
 
     @Override
-    public List<Task> searchByLabels(Set<String> labels) {
+    public List<Task> searchByLabels(final Set<String> labels) {
         return search(List.copyOf(labels));
     }
 
     @Override
-    public Task save(Task task) {
-        Optional<Task> existing = looksLikeGitHubId(task.id()) ? findById(task.id()) : Optional.empty();
+    public Task save(final Task task) {
+        final Optional<Task> existing = looksLikeGitHubId(task.id()) ? findById(task.id()) : Optional.empty();
         if (existing.isPresent()) {
             return update(existing.get(), task);
         }
@@ -94,48 +94,48 @@ public class GitHubTaskRepository implements TaskRepository {
     }
 
     @Override
-    public void deleteById(String id) {
-        String mutation = "mutation($id: ID!) { updateIssue(input: { id: $id, state: CLOSED }) { issue { id } } }";
+    public void deleteById(final String id) {
+        final String mutation = "mutation($id: ID!) { updateIssue(input: { id: $id, state: CLOSED }) { issue { id } } }";
         client.execute(mutation, Map.of("id", id));
     }
 
-    private List<Task> search(List<String> requiredLabels) {
-        StringJoiner searchQuery = new StringJoiner(" ");
+    private List<Task> search(final List<String> requiredLabels) {
+        final StringJoiner searchQuery = new StringJoiner(" ");
         searchQuery.add("repo:" + properties.owner() + "/" + properties.repo());
         searchQuery.add("is:issue");
         searchQuery.add("label:\"" + MARKER_LABEL + "\"");
-        for (String label : requiredLabels) {
+        for (final String label : requiredLabels) {
             searchQuery.add("label:\"" + label + "\"");
         }
-        String query = "query($searchQuery: String!) { search(query: $searchQuery, type: ISSUE, first: 100) { nodes { ... on Issue { "
+        final String query = "query($searchQuery: String!) { search(query: $searchQuery, type: ISSUE, first: 100) { nodes { ... on Issue { "
                 + ISSUE_FIELDS + " } } } }";
-        JsonNode data = client.execute(query, Map.of("searchQuery", searchQuery.toString()));
-        List<Task> tasks = new ArrayList<>();
-        for (JsonNode issue : data.path("search").path("nodes")) {
+        final JsonNode data = client.execute(query, Map.of("searchQuery", searchQuery.toString()));
+        final List<Task> tasks = new ArrayList<>();
+        for (final JsonNode issue : data.path("search").path("nodes")) {
             tasks.add(toTask(issue));
         }
         return tasks;
     }
 
-    private Task create(Task task) {
-        String createMutation = "mutation($repositoryId: ID!, $title: String!, $body: String) { "
+    private Task create(final Task task) {
+        final String createMutation = "mutation($repositoryId: ID!, $title: String!, $body: String) { "
                 + "createIssue(input: { repositoryId: $repositoryId, title: $title, body: $body }) { issue { id } } }";
-        JsonNode created = client.execute(createMutation, Map.of(
+        final JsonNode created = client.execute(createMutation, Map.of(
                 "repositoryId", context.repositoryId(),
                 "title", task.title(),
                 "body", task.description()
         ));
-        String issueId = created.path("createIssue").path("issue").path("id").asText();
+        final String issueId = created.path("createIssue").path("issue").path("id").asText();
 
-        Set<String> labelIds = new HashSet<>();
+        final Set<String> labelIds = new HashSet<>();
         labelIds.add(ensureLabelId(MARKER_LABEL));
         labelIds.add(ensureLabelId(GitHubStatusLabels.labelFor(task.status())));
-        for (String label : task.labels()) {
+        for (final String label : task.labels()) {
             labelIds.add(ensureLabelId(label));
         }
         addLabels(issueId, labelIds);
 
-        String itemId = addToProject(issueId);
+        final String itemId = addToProject(issueId);
         setDateField(itemId, START_DATE_FIELD, task.startDate());
         setDateField(itemId, END_DATE_FIELD, task.endDate());
         task.budget().ifPresent(budget -> setNumberField(itemId, BUDGET_FIELD, budget));
@@ -143,9 +143,9 @@ public class GitHubTaskRepository implements TaskRepository {
         return findById(issueId).orElseThrow();
     }
 
-    private Task update(Task before, Task after) {
+    private Task update(final Task before, final Task after) {
         if (!before.title().equals(after.title()) || !before.description().equals(after.description())) {
-            String mutation = "mutation($id: ID!, $title: String!, $body: String) { "
+            final String mutation = "mutation($id: ID!, $title: String!, $body: String) { "
                     + "updateIssue(input: { id: $id, title: $title, body: $body }) { issue { id } } }";
             client.execute(mutation, Map.of("id", before.id(), "title", after.title(), "body", after.description()));
         }
@@ -155,17 +155,17 @@ public class GitHubTaskRepository implements TaskRepository {
             addLabels(before.id(), Set.of(ensureLabelId(GitHubStatusLabels.labelFor(after.status()))));
         }
 
-        Set<String> addedLabels = new HashSet<>(after.labels());
+        final Set<String> addedLabels = new HashSet<>(after.labels());
         addedLabels.removeAll(before.labels());
         if (!addedLabels.isEmpty()) {
-            Set<String> ids = new HashSet<>();
-            for (String label : addedLabels) {
+            final Set<String> ids = new HashSet<>();
+            for (final String label : addedLabels) {
                 ids.add(ensureLabelId(label));
             }
             addLabels(before.id(), ids);
         }
 
-        Set<String> removedLabels = new HashSet<>(before.labels());
+        final Set<String> removedLabels = new HashSet<>(before.labels());
         removedLabels.removeAll(after.labels());
         if (!removedLabels.isEmpty()) {
             removeLabels(before.id(), removedLabels);
@@ -173,7 +173,7 @@ public class GitHubTaskRepository implements TaskRepository {
 
         if (!before.startDate().equals(after.startDate()) || !before.endDate().equals(after.endDate())
                 || !before.budget().equals(after.budget())) {
-            String itemId = projectItemId(before.id()).orElseGet(() -> addToProject(before.id()));
+            final String itemId = projectItemId(before.id()).orElseGet(() -> addToProject(before.id()));
             setDateField(itemId, START_DATE_FIELD, after.startDate());
             setDateField(itemId, END_DATE_FIELD, after.endDate());
             after.budget().ifPresent(budget -> setNumberField(itemId, BUDGET_FIELD, budget));
@@ -182,11 +182,11 @@ public class GitHubTaskRepository implements TaskRepository {
         return findById(before.id()).orElseThrow();
     }
 
-    private Optional<String> projectItemId(String issueId) {
-        String query = "query($id: ID!) { node(id: $id) { ... on Issue { "
+    private Optional<String> projectItemId(final String issueId) {
+        final String query = "query($id: ID!) { node(id: $id) { ... on Issue { "
                 + "projectItems(first: 10) { nodes { id project { id } } } } } }";
-        JsonNode data = client.execute(query, Map.of("id", issueId));
-        for (JsonNode item : data.path("node").path("projectItems").path("nodes")) {
+        final JsonNode data = client.execute(query, Map.of("id", issueId));
+        for (final JsonNode item : data.path("node").path("projectItems").path("nodes")) {
             if (item.path("project").path("id").asText("").equals(context.projectId())) {
                 return Optional.of(item.path("id").asText());
             }
@@ -194,15 +194,15 @@ public class GitHubTaskRepository implements TaskRepository {
         return Optional.empty();
     }
 
-    private String addToProject(String issueId) {
-        String mutation = "mutation($projectId: ID!, $contentId: ID!) { "
+    private String addToProject(final String issueId) {
+        final String mutation = "mutation($projectId: ID!, $contentId: ID!) { "
                 + "addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) { item { id } } }";
-        JsonNode result = client.execute(mutation, Map.of("projectId", context.projectId(), "contentId", issueId));
+        final JsonNode result = client.execute(mutation, Map.of("projectId", context.projectId(), "contentId", issueId));
         return result.path("addProjectV2ItemById").path("item").path("id").asText();
     }
 
-    private void setDateField(String itemId, String fieldName, LocalDate value) {
-        String mutation = "mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) { "
+    private void setDateField(final String itemId, final String fieldName, final LocalDate value) {
+        final String mutation = "mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $date: Date!) { "
                 + "updateProjectV2ItemFieldValue(input: { projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: { date: $date } }) { projectV2Item { id } } }";
         client.execute(mutation, Map.of(
                 "projectId", context.projectId(),
@@ -212,8 +212,8 @@ public class GitHubTaskRepository implements TaskRepository {
         ));
     }
 
-    private void setNumberField(String itemId, String fieldName, BigDecimal value) {
-        String mutation = "mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $number: Float!) { "
+    private void setNumberField(final String itemId, final String fieldName, final BigDecimal value) {
+        final String mutation = "mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $number: Float!) { "
                 + "updateProjectV2ItemFieldValue(input: { projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: { number: $number } }) { projectV2Item { id } } }";
         client.execute(mutation, Map.of(
                 "projectId", context.projectId(),
@@ -223,45 +223,45 @@ public class GitHubTaskRepository implements TaskRepository {
         ));
     }
 
-    private void addLabels(String issueId, Set<String> labelIds) {
-        String mutation = "mutation($labelableId: ID!, $labelIds: [ID!]!) { "
+    private void addLabels(final String issueId, final Set<String> labelIds) {
+        final String mutation = "mutation($labelableId: ID!, $labelIds: [ID!]!) { "
                 + "addLabelsToLabelable(input: { labelableId: $labelableId, labelIds: $labelIds }) { clientMutationId } }";
         client.execute(mutation, Map.of("labelableId", issueId, "labelIds", List.copyOf(labelIds)));
     }
 
-    private void removeLabels(String issueId, Set<String> labelNames) {
-        Set<String> ids = new HashSet<>();
-        for (String name : labelNames) {
+    private void removeLabels(final String issueId, final Set<String> labelNames) {
+        final Set<String> ids = new HashSet<>();
+        for (final String name : labelNames) {
             ensureLabelId(name);
             ids.add(labelId(name));
         }
-        String mutation = "mutation($labelableId: ID!, $labelIds: [ID!]!) { "
+        final String mutation = "mutation($labelableId: ID!, $labelIds: [ID!]!) { "
                 + "removeLabelsFromLabelable(input: { labelableId: $labelableId, labelIds: $labelIds }) { clientMutationId } }";
         client.execute(mutation, Map.of("labelableId", issueId, "labelIds", List.copyOf(ids)));
     }
 
     private final Map<String, String> labelIdCache = new java.util.concurrent.ConcurrentHashMap<>();
 
-    private String labelId(String name) {
+    private String labelId(final String name) {
         return labelIdCache.get(name);
     }
 
-    private String ensureLabelId(String name) {
+    private String ensureLabelId(final String name) {
         return labelIdCache.computeIfAbsent(name, this::findOrCreateLabel);
     }
 
-    private String findOrCreateLabel(String name) {
-        String findQuery = "query($owner: String!, $repo: String!, $name: String!) { "
+    private String findOrCreateLabel(final String name) {
+        final String findQuery = "query($owner: String!, $repo: String!, $name: String!) { "
                 + "repository(owner: $owner, name: $repo) { label(name: $name) { id } } }";
-        JsonNode found = client.execute(findQuery, Map.of("owner", properties.owner(), "repo", properties.repo(), "name", name));
-        JsonNode label = found.path("repository").path("label");
+        final JsonNode found = client.execute(findQuery, Map.of("owner", properties.owner(), "repo", properties.repo(), "name", name));
+        final JsonNode label = found.path("repository").path("label");
         if (!label.isMissingNode() && !label.isNull()) {
             return label.path("id").asText();
         }
 
-        String createMutation = "mutation($repositoryId: ID!, $name: String!, $color: String!) { "
+        final String createMutation = "mutation($repositoryId: ID!, $name: String!, $color: String!) { "
                 + "createLabel(input: { repositoryId: $repositoryId, name: $name, color: $color }) { label { id } } }";
-        JsonNode created = client.execute(createMutation, Map.of(
+        final JsonNode created = client.execute(createMutation, Map.of(
                 "repositoryId", context.repositoryId(),
                 "name", name,
                 "color", "ededed"
@@ -269,15 +269,15 @@ public class GitHubTaskRepository implements TaskRepository {
         return created.path("createLabel").path("label").path("id").asText();
     }
 
-    private Task toTask(JsonNode issue) {
-        String id = issue.path("id").asText();
-        String title = issue.path("title").asText();
-        String description = issue.path("body").asText("");
+    private Task toTask(final JsonNode issue) {
+        final String id = issue.path("id").asText();
+        final String title = issue.path("title").asText();
+        final String description = issue.path("body").asText("");
 
-        Set<String> labels = new HashSet<>();
+        final Set<String> labels = new HashSet<>();
         TaskStatus status = TaskStatus.TODO;
-        for (JsonNode label : issue.path("labels").path("nodes")) {
-            String name = label.path("name").asText();
+        for (final JsonNode label : issue.path("labels").path("nodes")) {
+            final String name = label.path("name").asText();
             if (name.equals(MARKER_LABEL)) {
                 continue;
             }
@@ -291,12 +291,12 @@ public class GitHubTaskRepository implements TaskRepository {
         LocalDate startDate = null;
         LocalDate endDate = null;
         BigDecimal budget = null;
-        for (JsonNode item : issue.path("projectItems").path("nodes")) {
+        for (final JsonNode item : issue.path("projectItems").path("nodes")) {
             if (!item.path("project").path("id").asText("").equals(context.projectId())) {
                 continue;
             }
-            for (JsonNode fieldValue : item.path("fieldValues").path("nodes")) {
-                String fieldName = fieldValue.path("field").path("name").asText("");
+            for (final JsonNode fieldValue : item.path("fieldValues").path("nodes")) {
+                final String fieldName = fieldValue.path("field").path("name").asText("");
                 if (fieldName.equals(START_DATE_FIELD) && fieldValue.hasNonNull("date")) {
                     startDate = LocalDate.parse(fieldValue.path("date").asText());
                 } else if (fieldName.equals(END_DATE_FIELD) && fieldValue.hasNonNull("date")) {
@@ -316,7 +316,7 @@ public class GitHubTaskRepository implements TaskRepository {
         return new Task(id, title, description, startDate, endDate, labels, status, budget);
     }
 
-    private boolean looksLikeGitHubId(String id) {
+    private boolean looksLikeGitHubId(final String id) {
         return id != null && !id.isBlank() && !id.contains("-");
     }
 }

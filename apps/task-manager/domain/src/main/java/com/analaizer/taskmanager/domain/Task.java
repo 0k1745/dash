@@ -19,14 +19,14 @@ public final class Task {
     private BigDecimal budget;
 
     public Task(
-            String id,
-            String title,
-            String description,
-            LocalDate startDate,
-            LocalDate endDate,
-            Set<String> labels,
-            TaskStatus status,
-            BigDecimal budget
+            final String id,
+            final String title,
+            final String description,
+            final LocalDate startDate,
+            final LocalDate endDate,
+            final Set<String> labels,
+            final TaskStatus status,
+            final BigDecimal budget
     ) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         this.title = requireNonBlank(title, "title");
@@ -38,11 +38,11 @@ public final class Task {
         this.budget = budget;
     }
 
-    public static Task create(String id, String title, String description, LocalDate startDate, LocalDate endDate, BigDecimal budget) {
+    public static Task create(final String id, final String title, final String description, final LocalDate startDate, final LocalDate endDate, final BigDecimal budget) {
         return new Task(id, title, description, startDate, endDate, Set.of(), TaskStatus.TODO, budget);
     }
 
-    public void changeStatus(TaskStatus newStatus) {
+    public void changeStatus(final TaskStatus newStatus) {
         Objects.requireNonNull(newStatus, "newStatus must not be null");
         if (status == newStatus) {
             throw new IllegalStateException("Task " + id + " is already in status " + newStatus);
@@ -50,15 +50,15 @@ public final class Task {
         status = newStatus;
     }
 
-    public void addLabel(String label) {
+    public void addLabel(final String label) {
         labels.add(requireNonBlank(label, "label"));
     }
 
-    public void removeLabel(String label) {
+    public void removeLabel(final String label) {
         labels.remove(label);
     }
 
-    public boolean hasAllLabels(Set<String> requiredLabels) {
+    public boolean hasAllLabels(final Set<String> requiredLabels) {
         return labels.containsAll(requiredLabels);
     }
 
@@ -94,14 +94,14 @@ public final class Task {
         return Optional.ofNullable(budget);
     }
 
-    private static String requireNonBlank(String value, String fieldName) {
+    private static String requireNonBlank(final String value, final String fieldName) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " must not be blank");
         }
         return value;
     }
 
-    private static LocalDate requireEndNotBeforeStart(LocalDate start, LocalDate end) {
+    private static LocalDate requireEndNotBeforeStart(final LocalDate start, final LocalDate end) {
         if (end.isBefore(start)) {
             throw new IllegalArgumentException("endDate must not be before startDate");
         }
@@ -109,7 +109,7 @@ public final class Task {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(final Object other) {
         return other instanceof Task task && id.equals(task.id);
     }
 

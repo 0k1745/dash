@@ -17,15 +17,15 @@ public final class GitHubStatusLabels {
     private GitHubStatusLabels() {
     }
 
-    public static String labelFor(TaskStatus status) {
+    public static String labelFor(final TaskStatus status) {
         return LABEL_BY_STATUS.get(status);
     }
 
-    public static boolean isStatusLabel(String label) {
+    public static boolean isStatusLabel(final String label) {
         return LABEL_BY_STATUS.containsValue(label);
     }
 
-    public static TaskStatus statusFor(String label) {
+    public static TaskStatus statusFor(final String label) {
         return LABEL_BY_STATUS.entrySet().stream()
                 .filter(entry -> entry.getValue().equals(label))
                 .map(Map.Entry::getKey)

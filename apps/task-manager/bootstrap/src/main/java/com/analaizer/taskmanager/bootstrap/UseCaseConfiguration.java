@@ -18,37 +18,37 @@ import org.springframework.context.annotation.Configuration;
 public class UseCaseConfiguration {
 
     @Bean
-    public ListTasks listTasks(TaskRepository taskRepository) {
+    public ListTasks listTasks(final TaskRepository taskRepository) {
         return new ListTasks(taskRepository);
     }
 
     @Bean
-    public CreateTask createTask(TaskRepository taskRepository) {
+    public CreateTask createTask(final TaskRepository taskRepository) {
         return new CreateTask(taskRepository);
     }
 
     @Bean
-    public ChangeTaskStatus changeTaskStatus(TaskRepository taskRepository) {
+    public ChangeTaskStatus changeTaskStatus(final TaskRepository taskRepository) {
         return new ChangeTaskStatus(taskRepository);
     }
 
     @Bean
-    public AddLabel addLabel(TaskRepository taskRepository) {
+    public AddLabel addLabel(final TaskRepository taskRepository) {
         return new AddLabel(taskRepository);
     }
 
     @Bean
-    public RemoveLabel removeLabel(TaskRepository taskRepository) {
+    public RemoveLabel removeLabel(final TaskRepository taskRepository) {
         return new RemoveLabel(taskRepository);
     }
 
     @Bean
-    public SearchTasksByLabels searchTasksByLabels(TaskRepository taskRepository) {
+    public SearchTasksByLabels searchTasksByLabels(final TaskRepository taskRepository) {
         return new SearchTasksByLabels(taskRepository);
     }
 
     @Bean
-    public DeleteTask deleteTask(TaskRepository taskRepository) {
+    public DeleteTask deleteTask(final TaskRepository taskRepository) {
         return new DeleteTask(taskRepository);
     }
 }

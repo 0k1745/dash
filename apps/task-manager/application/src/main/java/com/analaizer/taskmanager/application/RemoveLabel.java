@@ -8,12 +8,12 @@ public final class RemoveLabel {
 
     private final TaskRepository taskRepository;
 
-    public RemoveLabel(TaskRepository taskRepository) {
+    public RemoveLabel(final TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    public Task execute(String id, String label) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    public Task execute(final String id, final String label) {
+        final Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
         task.removeLabel(label);
         return taskRepository.save(task);
     }

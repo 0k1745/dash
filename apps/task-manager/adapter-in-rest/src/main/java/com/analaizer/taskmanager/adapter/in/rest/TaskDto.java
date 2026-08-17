@@ -17,7 +17,7 @@ public record TaskDto(
         BigDecimal budget
 ) {
 
-    public static TaskDto from(Task task) {
+    public static TaskDto from(final Task task) {
         return new TaskDto(
                 task.id(),
                 task.title(),

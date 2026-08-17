@@ -30,14 +30,14 @@ public class RepositoryConfiguration {
     @Bean
     @Profile("github")
     public TaskRepository gitHubTaskRepository(
-            @Value("${github.task-manager.token}") String token,
-            @Value("${github.task-manager.owner}") String owner,
-            @Value("${github.task-manager.repo}") String repo,
-            @Value("${github.task-manager.project-number}") int projectNumber
+            @Value("${github.task-manager.token}") final String token,
+            @Value("${github.task-manager.owner}") final String owner,
+            @Value("${github.task-manager.repo}") final String repo,
+            @Value("${github.task-manager.project-number}") final int projectNumber
     ) {
-        GitHubTaskManagerProperties properties = new GitHubTaskManagerProperties(token, owner, repo, projectNumber);
-        GitHubGraphQlClient client = new GitHubGraphQlClient(HttpClient.newHttpClient(), new ObjectMapper(), token);
-        GitHubProjectContext context = new GitHubProjectContext(client, properties);
+        final GitHubTaskManagerProperties properties = new GitHubTaskManagerProperties(token, owner, repo, projectNumber);
+        final GitHubGraphQlClient client = new GitHubGraphQlClient(HttpClient.newHttpClient(), new ObjectMapper(), token);
+        final GitHubProjectContext context = new GitHubProjectContext(client, properties);
         return new GitHubTaskRepository(client, context, properties);
     }
 }

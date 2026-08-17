@@ -10,12 +10,12 @@ public final class CreateTask {
 
     private final TaskRepository taskRepository;
 
-    public CreateTask(TaskRepository taskRepository) {
+    public CreateTask(final TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    public Task execute(String title, String description, LocalDate startDate, LocalDate endDate, BigDecimal budget) {
-        Task task = Task.create(UUID.randomUUID().toString(), title, description, startDate, endDate, budget);
+    public Task execute(final String title, final String description, final LocalDate startDate, final LocalDate endDate, final BigDecimal budget) {
+        final Task task = Task.create(UUID.randomUUID().toString(), title, description, startDate, endDate, budget);
         return taskRepository.save(task);
     }
 }

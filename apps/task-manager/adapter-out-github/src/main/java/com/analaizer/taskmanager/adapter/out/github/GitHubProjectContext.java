@@ -39,7 +39,7 @@ public class GitHubProjectContext {
     private String projectId;
     private final Map<String, String> fieldIdsByName = new HashMap<>();
 
-    public GitHubProjectContext(GitHubGraphQlClient client, GitHubTaskManagerProperties properties) {
+    public GitHubProjectContext(final GitHubGraphQlClient client, final GitHubTaskManagerProperties properties) {
         this.client = client;
         this.properties = properties;
     }
@@ -54,9 +54,9 @@ public class GitHubProjectContext {
         return projectId;
     }
 
-    public synchronized String fieldId(String fieldName) {
+    public synchronized String fieldId(final String fieldName) {
         resolveIfNeeded();
-        String fieldId = fieldIdsByName.get(fieldName);
+        final String fieldId = fieldIdsByName.get(fieldName);
         if (fieldId == null) {
             throw new GitHubGraphQlException("Projects v2 board is missing the expected \"" + fieldName + "\" field");
         }
@@ -67,7 +67,7 @@ public class GitHubProjectContext {
         if (repositoryId != null && projectId != null) {
             return;
         }
-        JsonNode data = client.execute(QUERY, Map.of(
+        final JsonNode data = client.execute(QUERY, Map.of(
                 "owner", properties.owner(),
                 "repo", properties.repo(),
                 "number", properties.projectNumber()
@@ -83,9 +83,9 @@ public class GitHubProjectContext {
                     + " found for owner " + properties.owner());
         }
         projectId = projectV2.path("id").asText();
-        for (JsonNode field : projectV2.path("fields").path("nodes")) {
-            String name = field.path("name").asText(null);
-            String id = field.path("id").asText(null);
+        for (final JsonNode field : projectV2.path("fields").path("nodes")) {
+            final String name = field.path("name").asText(null);
+            final String id = field.path("id").asText(null);
             if (name != null && id != null) {
                 fieldIdsByName.put(name, id);
             }

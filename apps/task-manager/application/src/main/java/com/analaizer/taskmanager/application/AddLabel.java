@@ -8,12 +8,12 @@ public final class AddLabel {
 
     private final TaskRepository taskRepository;
 
-    public AddLabel(TaskRepository taskRepository) {
+    public AddLabel(final TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
-    public Task execute(String id, String label) {
-        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    public Task execute(final String id, final String label) {
+        final Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
         task.addLabel(label);
         return taskRepository.save(task);
     }

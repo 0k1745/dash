@@ -18,7 +18,7 @@ class InMemoryTaskRepositoryTest {
 
     @Test
     void savesAndFindsATask() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
 
         repository.save(task);
 
@@ -37,15 +37,15 @@ class InMemoryTaskRepositoryTest {
 
     @Test
     void searchesTasksMatchingAllRequestedLabels() {
-        Task matching = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
+        final Task matching = Task.create("1", "Write the ADR", "Describe the decision", START, END, null);
         matching.addLabel("backend");
         matching.addLabel("urgent");
-        Task partial = Task.create("2", "Update the README", "Describe the change", START, END, null);
+        final Task partial = Task.create("2", "Update the README", "Describe the change", START, END, null);
         partial.addLabel("backend");
         repository.save(matching);
         repository.save(partial);
 
-        List<Task> found = repository.searchByLabels(Set.of("backend", "urgent"));
+        final List<Task> found = repository.searchByLabels(Set.of("backend", "urgent"));
 
         assertEquals(List.of(matching), found);
     }

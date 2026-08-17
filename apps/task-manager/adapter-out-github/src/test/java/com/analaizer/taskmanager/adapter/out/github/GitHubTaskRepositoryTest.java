@@ -37,10 +37,10 @@ class GitHubTaskRepositoryTest {
 
         stubContextResolution();
 
-        GitHubGraphQlClient client = new GitHubGraphQlClient(
+        final GitHubGraphQlClient client = new GitHubGraphQlClient(
                 HttpClient.newHttpClient(), new ObjectMapper(), "test-token",
                 URI.create(server.baseUrl() + "/graphql"));
-        GitHubProjectContext context = new GitHubProjectContext(client, PROPERTIES);
+        final GitHubProjectContext context = new GitHubProjectContext(client, PROPERTIES);
         repository = new GitHubTaskRepository(client, context, PROPERTIES);
     }
 
@@ -82,10 +82,10 @@ class GitHubTaskRepositoryTest {
                 }
                 """);
 
-        List<Task> tasks = repository.findAll();
+        final List<Task> tasks = repository.findAll();
 
         assertEquals(1, tasks.size());
-        Task task = tasks.get(0);
+        final Task task = tasks.get(0);
         assertEquals("issue-1", task.id());
         assertEquals("Write the ADR", task.title());
         assertTrue(task.labels().isEmpty());
@@ -97,7 +97,7 @@ class GitHubTaskRepositoryTest {
                 { "data": { "node": null } }
                 """);
 
-        Optional<Task> found = repository.findById("missing");
+        final Optional<Task> found = repository.findById("missing");
 
         assertTrue(found.isEmpty());
     }
@@ -134,7 +134,7 @@ class GitHubTaskRepositoryTest {
                 """);
     }
 
-    private void stubGraphQl(String bodyContains, String responseBody) {
+    private void stubGraphQl(final String bodyContains, final String responseBody) {
         server.stubFor(post(urlEqualTo("/graphql"))
                 .withRequestBody(containing(bodyContains))
                 .willReturn(okJson(responseBody)));

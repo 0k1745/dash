@@ -21,12 +21,12 @@ class ChangeTaskStatusTest {
 
     @Test
     void changesTheStatusOfAnExistingTask() {
-        Task task = Task.create("1", "Write the ADR", "Describe the decision",
+        final Task task = Task.create("1", "Write the ADR", "Describe the decision",
                 LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 31), null);
         when(taskRepository.findById("1")).thenReturn(Optional.of(task));
         when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Task updated = changeTaskStatus.execute("1", TaskStatus.DONE);
+        final Task updated = changeTaskStatus.execute("1", TaskStatus.DONE);
 
         assertEquals(TaskStatus.DONE, updated.status());
     }
